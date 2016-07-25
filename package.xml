@@ -1,0 +1,28 @@
+<package>
+  <!-- Package Metadata -->
+  <name>harrt_ros</name>
+  <maintainer email="daqing.yi@byu.edu">Walter</maintainer>
+  <description>
+    ROS node for HARRT*
+  </description>
+  <version>0.0.5</version>
+  <license>BSD</license>
+
+  <!-- Required by Catkin -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+  <!-- Package Dependencies -->
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
+
+  <build_depend>int_array_msg</build_depend>
+  <run_depend>int_array_msg</run_depend>
+  <build_depend>morrf_init_msg</build_depend>
+  <run_depend>morrf_init_msg</run_depend>
+  <build_depend>multi_objective_path_msg</build_depend>
+  <run_depend>multi_objective_path_msg</run_depend>
+
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
+</package>
