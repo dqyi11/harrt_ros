@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Declare the name of the CMake Project
-project(morrf_ros)
+project(harrt_ros)
 
 # Find Catkin
 find_package(catkin REQUIRED COMPONENTS
@@ -13,27 +13,27 @@ find_package(catkin REQUIRED COMPONENTS
             )
 
 # Find package morrf
-find_path(MORRF_INCLUDE_DIR morrf/morrf.h
-    HINTS ${MORRF_INCLUDEDIR} ${MORRF_INCLUDE_DIRS})
-#message("MORRF_INCLUDE_DIR:")
-#message(${MORRF_INCLUDE_DIR})
+find_path(HARRT_INCLUDE_DIR tbpp/harrt/birrtstar.h
+    HINTS ${HARRT_INCLUDEDIR} ${HARRT_INCLUDE_DIRS})
+#message("HARRT_INCLUDE_DIR:")
+#message(${HARRT_INCLUDE_DIR})
 
-find_library(MORRF_LIBRARY morrf
-    HINTS ${MORRF_LIBDIR} ${MORRF_LIBRARY_DIRS})
-#message("MORRF_LIBRARY:")
-#message(${MORRF_LIBRARY})
+find_library(HARRT_LIBRARY tpp-harrts
+    HINTS ${HARRT_LIBDIR} ${HARRT_LIBRARY_DIRS})
+#message("HARRT_LIBRARY:")
+#message(${HARRT_LIBRARY})
 
 add_message_files (
   FILES
   int16_image.msg
-  morrf_init.msg
-  multi_objective_path.msg
+  harrt_init.msg
+  single_objective_path.msg
 )
 
 add_service_files(
   FILES
-  morrf_initialize.srv
-  morrf_continue.srv
+  harrt_initialize.srv
+  harrt_continue.srv
 )
 
 generate_messages (
@@ -54,21 +54,15 @@ include_directories(include ${catkin_INCLUDE_DIRS}
                             ${MORRF_INCLUDE_DIR}
                             )
 
-add_executable(morrf_node src/morrf_service.cpp
-                          src/morrf_service_node.cpp
+add_executable(harrt_node src/harrt_service.cpp
+                          src/harrt_service_node.cpp
               )
 
-#add_executable(morrf_continue_node src/morrf_continue_node.cpp)
-
-target_link_libraries(morrf_node ${catkin_LIBRARIES}
+target_link_libraries(harrt_node ${catkin_LIBRARIES}
                                  ${MORRF_LIBRARY}
                      )
 
-#target_link_libraries(morrf_continue_node ${catkin_LIBRARIES}
- #                                         ${MORRF_LIBRARY}
-  #                   )
-
-install(TARGETS morrf_node
+install(TARGETS harrt_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

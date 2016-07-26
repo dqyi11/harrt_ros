@@ -1,3 +1,3 @@
 int64 iterations
 ---
-path[] paths
+single_objective_path[] paths
