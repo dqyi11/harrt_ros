@@ -13,15 +13,35 @@ find_package(catkin REQUIRED COMPONENTS
             )
 
 # Find package morrf
-find_path(HARRT_INCLUDE_DIR tbpp/harrt/birrtstar.h
-    HINTS ${HARRT_INCLUDEDIR} ${HARRT_INCLUDE_DIRS})
-#message("HARRT_INCLUDE_DIR:")
-#message(${HARRT_INCLUDE_DIR})
+find_path(HARRT_INCLUDE_DIR tpp/harrt/birrtstar.h
+    HINTS ${HARRT_INCLUDE_DIR} ${HARRT_INCLUDE_DIRS})
+message("HARRT_INCLUDE_DIR:")
+message(${HARRT_INCLUDE_DIR})
 
 find_library(HARRT_LIBRARY tpp-harrts
     HINTS ${HARRT_LIBDIR} ${HARRT_LIBRARY_DIRS})
-#message("HARRT_LIBRARY:")
-#message(${HARRT_LIBRARY})
+message("HARRT_LIBRARY:")
+message(${HARRT_LIBRARY})
+
+# search for the libxml2 package, exit if not found
+find_package(LibXml2)
+if( NOT LIBXML2_FOUND )
+  message( FATAL_ERROR "libxml2 not found\n" )
+  return()
+endif()
+include_directories(${LIBXML2_INCLUDE_DIR})
+
+# search for CGAL, exit if not found
+find_package(CGAL QUIET COMPONENTS Core)
+if( NOT CGAL_FOUND )
+  message( FATAL_ERROR "CGAL not found\n" ) 
+  return()
+endif()
+#message( "CGAL FOUND ")
+#message( "CGAL_USE_FILE: " ${CGAL_USE_FILE} )
+#message( "CGAL_INCLUDE_DIR: " ${CGAL_INCLUDE_DIR} )
+include(${CGAL_USE_FILE})
+include_directories(${CGAL_INCLUDE_DIR})
 
 add_message_files (
   FILES
@@ -50,16 +70,18 @@ catkin_package(
 )
 
 # Add the headers from roscpp
-include_directories(include ${catkin_INCLUDE_DIRS}
-                            ${MORRF_INCLUDE_DIR}
-                            )
+include_directories(include 
+                    ${catkin_INCLUDE_DIRS}
+                    ${HARRT_INCLUDE_DIR}
+                    )
 
 add_executable(harrt_node src/harrt_service.cpp
                           src/harrt_service_node.cpp
               )
 
 target_link_libraries(harrt_node ${catkin_LIBRARIES}
-                                 ${MORRF_LIBRARY}
+                                 ${HARRT_LIBRARY}
+                                 ${CGAL_LIBRARY}
                      )
 
 install(TARGETS harrt_node
