@@ -11,7 +11,8 @@ public:
   HARRTService();
   virtual ~HARRTService();
 
-  birrts::BIRRTstar* mp_harrt;
+  birrts::BIRRTstar*           mp_harrt;
+  homotopy::ReferenceFrameSet* mp_reference_frame_set;
 
   bool get_paths( harrt_ros::harrt_initialize::Request& req,
                   harrt_ros::harrt_initialize::Response& res);

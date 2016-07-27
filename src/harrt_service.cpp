@@ -2,6 +2,7 @@
 #include "harrt_ros/harrt_service.h"
 
 using namespace std;
+using namespace homotopy;
 using namespace birrts;
 
 #define HARRT_INIT_SERVICE_NAME "/harrt/get_paths"
@@ -91,6 +92,34 @@ HARRTService::~HARRTService() {
 bool HARRTService::get_paths( harrt_ros::harrt_initialize::Request& req,
                               harrt_ros::harrt_initialize::Response& res) {
 
+  std::cout << "Starting HARRT..." << std::endl;
+  delete_harrt();
+
+  int** pp_obstacle = new int*[req.init.map.width];
+  for(unsigned int w=0; w < req.init.map.width; w++) {
+
+    pp_obstacle[w] = new int[req.init.map.height];
+    for(unsigned int h=0; h < req.init.map.height; h++) {
+      pp_obstacle[w][h] = req.init.map.int_array[w+req.init.map.width*h];
+    }
+  }
+
+  mp_reference_frame_set = new ReferenceFrameSet();
+  mp_reference_frame_set->init(req.init.width, req.init.height, pp_obstacle);
+  mp_harrt = new BIRRTstar(req.init.width, req.init.height, req.init.segment_length);
+  mp_harrt->set_reference_frames( mp_reference_frame_set );
+  POS2D start(req.init.start.x, req.init.start.y);
+  POS2D goal(req.init.goal.x, req.init.goal.y);
+  mp_harrt->init(start, goal, func, fitness_distribution);  
+
+  for(unsigned int w=0; w < req.init.map.width; w++) {
+    delete [] pp_obstacle[w];
+    pp_obstacle[w] = NULL;
+  }
+  delete [] pp_obstacle;
+
+  std::cout << "HARRT finished!" << std::endl;
+
   return false;
 }
 
@@ -101,6 +130,21 @@ bool HARRTService::refine_paths( harrt_ros::harrt_continue::Request& req,
 
 void HARRTService::delete_harrt() {
 
+  if(mp_harrt) {
+    delete mp_harrt;
+    mp_harrt = NULL;
+  }
+  func = NULL;
+  if(fitness_distribution) {
+    unsigned int array_size = sizeof(fitness_distribution)/sizeof(int*);
+
+    for(unsigned int w=0; w < array_size; w++) {
+      delete [] fitness_distribution[w];
+    }
+
+    delete [] fitness_distribution;
+    fitness_distribution = NULL;
+  }
 }
 
 
