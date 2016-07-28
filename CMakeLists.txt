@@ -15,13 +15,13 @@ find_package(catkin REQUIRED COMPONENTS
 # Find package morrf
 find_path(HARRT_INCLUDE_DIR tpp/harrt/birrtstar.h
     HINTS ${HARRT_INCLUDE_DIR} ${HARRT_INCLUDE_DIRS})
-message("HARRT_INCLUDE_DIR:")
-message(${HARRT_INCLUDE_DIR})
+#message("HARRT_INCLUDE_DIR:")
+#message(${HARRT_INCLUDE_DIR})
 
-find_library(HARRT_LIBRARY tpp-harrts
+find_library(HARRT_LIBRARY tpp-harrts tpp-homotopy
     HINTS ${HARRT_LIBDIR} ${HARRT_LIBRARY_DIRS})
-message("HARRT_LIBRARY:")
-message(${HARRT_LIBRARY})
+#message("HARRT_LIBRARY:")
+#message(${HARRT_LIBRARY})
 
 # search for the libxml2 package, exit if not found
 find_package(LibXml2)
@@ -78,6 +78,8 @@ include_directories(include
 add_executable(harrt_node src/harrt_service.cpp
                           src/harrt_service_node.cpp
               )
+
+add_dependencies(harrt_node harrt_ros_generate_messages_cpp)
 
 target_link_libraries(harrt_node ${catkin_LIBRARIES}
                                  ${HARRT_LIBRARY}

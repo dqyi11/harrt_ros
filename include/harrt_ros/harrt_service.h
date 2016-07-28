@@ -23,7 +23,7 @@ public:
   void delete_harrt();
 
   birrts::COST_FUNC_PTR func;
-  int**                 fitness_distribution;
+  double**              fitness_distribution;
 
   ros::NodeHandle m_nh;
   ros::NodeHandle m_cont;

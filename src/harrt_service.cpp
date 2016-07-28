@@ -1,4 +1,5 @@
 #include <iostream>
+#include "tpp/homotopy/img_load_util.h"
 #include "harrt_ros/harrt_service.h"
 
 using namespace std;
@@ -104,13 +105,16 @@ bool HARRTService::get_paths( harrt_ros::harrt_initialize::Request& req,
     }
   }
 
+  std::vector< std::vector<Point2D> > obstacles;
+  load_map_info( pp_obstacle, req.init.map.width, req.init.map.height, obstacles );
+
   mp_reference_frame_set = new ReferenceFrameSet();
-  mp_reference_frame_set->init(req.init.width, req.init.height, pp_obstacle);
+  mp_reference_frame_set->init(req.init.width, req.init.height, obstacles);
   mp_harrt = new BIRRTstar(req.init.width, req.init.height, req.init.segment_length);
   mp_harrt->set_reference_frames( mp_reference_frame_set );
   POS2D start(req.init.start.x, req.init.start.y);
   POS2D goal(req.init.goal.x, req.init.goal.y);
-  mp_harrt->init(start, goal, func, fitness_distribution);  
+  mp_harrt->init(start, goal, func, fitness_distribution );  
 
   for(unsigned int w=0; w < req.init.map.width; w++) {
     delete [] pp_obstacle[w];
