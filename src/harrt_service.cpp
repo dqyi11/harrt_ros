@@ -109,13 +109,46 @@ bool HARRTService::get_paths( harrt_ros::harrt_initialize::Request& req,
   load_map_info( pp_obstacle, req.init.map.width, req.init.map.height, obstacles );
   std::cout << "NUM OF OBS = " << obstacles.size() << std::endl;
 
+  grammar_type_t grammar_type = STRING_GRAMMAR_TYPE;
   mp_reference_frame_set = new ReferenceFrameSet();
   mp_reference_frame_set->init(req.init.width, req.init.height, obstacles);
+  if(req.init.sketched_topology.size() > 0) {
+    std::vector< Point2D > ref_points;
+    for( unsigned int i = 0; i < req.init.sketched_topology.size(); i ++ ) {
+      geometry_msgs::Point p = req.init.sketched_topology[i];
+      ref_points.push_back( Point2D( p.x, p.y ) );
+    }
+    if( mp_reference_frame_set ) {
+      mp_reference_frame_set->import_string_constraint( ref_points, grammar_type );
+    }
+  }
+
   mp_harrt = new BIRRTstar(req.init.width, req.init.height, req.init.segment_length);
   mp_harrt->set_reference_frames( mp_reference_frame_set );
   POS2D start(req.init.start.x, req.init.start.y);
   POS2D goal(req.init.goal.x, req.init.goal.y);
-  mp_harrt->init(start, goal, func, fitness_distribution );  
+  mp_harrt->init(start, goal, func, fitness_distribution, grammar_type );  
+
+  while(mp_harrt->get_current_iteration() <= req.init.number_of_iterations) {
+    mp_harrt->extend();
+  }
+
+  mp_harrt->get_string_class_mgr()->merge();
+  std::vector<Path*> paths = mp_harrt->get_paths();
+
+  for(unsigned int i=0; i<paths.size(); i++) {
+    Path* p = paths[i];
+    if(p) {
+      harrt_ros::single_objective_path pp;
+      for(unsigned int j=0; j<p->m_way_points.size(); j++) {
+        geometry_msgs::Pose2D point;
+        point.x = p->m_way_points[j][0];
+        point.y = p->m_way_points[j][1];
+        pp.waypoints.push_back(point); 
+      }
+      res.paths.push_back(pp);
+    }
+  }
 
   for(unsigned int w=0; w < req.init.map.width; w++) {
     delete [] pp_obstacle[w];
@@ -125,12 +158,41 @@ bool HARRTService::get_paths( harrt_ros::harrt_initialize::Request& req,
 
   std::cout << "HARRT finished!" << std::endl;
 
-  return false;
+  return true;
 }
 
 bool HARRTService::refine_paths( harrt_ros::harrt_continue::Request& req,
                                  harrt_ros::harrt_continue::Response& res) {
-  return false;
+  
+  std::cout << "Refine paths of HARRT ... " << std::endl;
+  
+  if( mp_harrt ) {
+    unsigned int new_iterations = mp_harrt->get_current_iteration() + req.iterations;
+    while(mp_harrt->get_current_iteration() <= new_iterations) {
+      mp_harrt->extend();
+    }
+
+    mp_harrt->get_string_class_mgr()->merge();
+    std::vector<Path*> paths = mp_harrt->get_paths();
+
+    for(unsigned int i=0; i<paths.size(); i++) {
+      Path* p = paths[i];
+      if(p) {
+        harrt_ros::single_objective_path pp;
+        for(unsigned int j=0; j<p->m_way_points.size(); j++) {
+          geometry_msgs::Pose2D point;
+          point.x = p->m_way_points[j][0];
+          point.y = p->m_way_points[j][1];
+          pp.waypoints.push_back(point); 
+        }
+        res.paths.push_back(pp);
+      }
+    }
+  }
+ 
+  std::cout << "Refine paths of HARRT finished " << std::endl;
+ 
+  return true;
 }
 
 void HARRTService::delete_harrt() {
@@ -138,6 +200,10 @@ void HARRTService::delete_harrt() {
   if(mp_harrt) {
     delete mp_harrt;
     mp_harrt = NULL;
+  }
+  if(mp_reference_frame_set) {
+    delete mp_reference_frame_set;
+    mp_reference_frame_set = NULL;
   }
   func = NULL;
   if(fitness_distribution) {
@@ -151,5 +217,3 @@ void HARRTService::delete_harrt() {
     fitness_distribution = NULL;
   }
 }
-
-
