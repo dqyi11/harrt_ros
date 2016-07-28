@@ -12,14 +12,25 @@ find_package(catkin REQUIRED COMPONENTS
              message_generation
             )
 
-# Find package morrf
+# Find package homotopy
+find_path(HOMOTOPY_INCLUDE_DIR tpp/homotopy/worldmap.h
+    HINTS ${HOMOTOPY_INCLUDE_DIR} ${HOMOTOPY_INCLUDE_DIRS})
+#message("HOMOTOPY_INCLUDE_DIR:")
+#message(${HOMOTOPY_INCLUDE_DIR})
+
+find_library(HOMOTOPY_LIBRARY tpp-homotopy
+    HINTS ${HOMOTOPY_LIB_DIR} ${HARRT_LIBRARY_DIRS})
+#message("HOMOTOPY_LIBRARY:")
+#message(${HOMOTOPY_LIBRARY})
+
+# Find package harrt
 find_path(HARRT_INCLUDE_DIR tpp/harrt/birrtstar.h
     HINTS ${HARRT_INCLUDE_DIR} ${HARRT_INCLUDE_DIRS})
 #message("HARRT_INCLUDE_DIR:")
 #message(${HARRT_INCLUDE_DIR})
 
 find_library(HARRT_LIBRARY tpp-harrts tpp-homotopy
-    HINTS ${HARRT_LIBDIR} ${HARRT_LIBRARY_DIRS})
+    HINTS ${HARRT_LIB_DIR} ${HARRT_LIBRARY_DIRS})
 #message("HARRT_LIBRARY:")
 #message(${HARRT_LIBRARY})
 
@@ -42,6 +53,18 @@ endif()
 #message( "CGAL_INCLUDE_DIR: " ${CGAL_INCLUDE_DIR} )
 include(${CGAL_USE_FILE})
 include_directories(${CGAL_INCLUDE_DIR})
+
+# search for Open CV, exit if not found
+find_package( OpenCV REQUIRED )
+if( NOT OpenCV_FOUND ) 
+  message( FATAL_ERROR "OpenCV not found\n")
+  return()
+endif()
+#message( "OpenCV FOUND ")
+#message( "OpenCV_USE_FILE: " ${OpenCV_USE_FILE} )
+#message( "OpenCV_INCLUDE_DIR: " ${OpenCV_INCLUDE_DIRS} )
+#message( "OpenCV_LIB:" ${OpenCV_LIBRARIES} )
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_message_files (
   FILES
@@ -72,6 +95,7 @@ catkin_package(
 # Add the headers from roscpp
 include_directories(include 
                     ${catkin_INCLUDE_DIRS}
+                    ${HOMOTOPY_INCLUDE_DIR}
                     ${HARRT_INCLUDE_DIR}
                     )
 
@@ -82,8 +106,10 @@ add_executable(harrt_node src/harrt_service.cpp
 add_dependencies(harrt_node harrt_ros_generate_messages_cpp)
 
 target_link_libraries(harrt_node ${catkin_LIBRARIES}
+                                 ${HOMOTOPY_LIBRARY}
                                  ${HARRT_LIBRARY}
                                  ${CGAL_LIBRARY}
+                                 ${OpenCV_LIBRARIES}
                      )
 
 install(TARGETS harrt_node
