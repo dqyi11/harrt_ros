@@ -107,6 +107,7 @@ bool HARRTService::get_paths( harrt_ros::harrt_initialize::Request& req,
 
   std::vector< std::vector<Point2D> > obstacles;
   load_map_info( pp_obstacle, req.init.map.width, req.init.map.height, obstacles );
+  std::cout << "NUM OF OBS = " << obstacles.size() << std::endl;
 
   mp_reference_frame_set = new ReferenceFrameSet();
   mp_reference_frame_set->init(req.init.width, req.init.height, obstacles);
