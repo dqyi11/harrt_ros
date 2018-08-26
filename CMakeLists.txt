@@ -9,12 +9,13 @@ find_package(catkin REQUIRED COMPONENTS
              roscpp
              std_msgs
              geometry_msgs
+             nav_msgs
              message_generation
             )
 
 add_message_files (
   FILES
-  int16_image.msg
+  int16_costmap.msg
   harrt_init.msg
   single_objective_path.msg
 )
@@ -29,6 +30,7 @@ generate_messages (
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  nav_msgs
 )
 
 # Declare this project as a catkin package
