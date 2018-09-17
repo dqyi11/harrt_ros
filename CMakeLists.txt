@@ -35,6 +35,17 @@ find_library(HARRT_LIBRARY tpp-harrts tpp-homotopy
 #message("HARRT_LIBRARY:")
 #message(${HARRT_LIBRARY})
 
+find_package(CGAL QUIET COMPONENTS Core)
+if( NOT CGAL_FOUND )
+  message( FATAL_ERROR "CGAL not found\n" ) 
+  return()
+endif()
+#message( "CGAL FOUND ")
+#message( "CGAL_USE_FILE: " ${CGAL_USE_FILE} )
+#message( "CGAL_INCLUDE_DIR: " ${CGAL_INCLUDE_DIR} )
+include(${CGAL_USE_FILE})
+include_directories(${CGAL_INCLUDE_DIR})
+
 add_message_files (
   FILES
   int16_costmap.msg
@@ -65,6 +76,8 @@ catkin_package(
 # Add the headers from roscpp
 include_directories(include 
                     ${catkin_INCLUDE_DIRS}
+                    ${HOMOTOPY_INCLUDE_DIR}
+                    ${HARRT_INCLUDE_DIR}
                     )
 
 add_executable(harrt_node src/harrt_service.cpp

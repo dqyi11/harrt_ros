@@ -20,8 +20,8 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>nav_msgs</build_depend>
 
-  <build_depend>tbpp</build_depend>
-  <run_depend>tbpp</run_depend>
+  <build_depend>topologyPathPlanning</build_depend>
+  <run_depend>topologyPathPlanning</run_depend>
 
   <build_depend>message_generation</build_depend>
   <run_depend>message_runtime</run_depend>
