@@ -137,6 +137,24 @@ bool HARRTService::getPaths( harrt_ros::harrt_initialize::Request& req,
     }
   } 
 
+  if(req.init.minimum_distance_enabled == true)
+  {
+    mpFunc = calc_dist;
+  }
+  else
+  {
+    mpFitnessDistribution = new double*[req.init.cost_map.width];
+    for(int w=0; w<req.init.cost_map.width; w++)
+    {
+      mpFitnessDistribution[w] = new double[req.init.cost_map.height];
+      for(int h=0; h<req.init.cost_map.height; h++)
+      {
+        mpFitnessDistribution[w][h] = req.init.cost_map.int_array[w+req.init.cost_map.width*h];
+      }
+    }
+    mpFunc = calc_cost;
+  }
+
   mpHARRTs = new harrts::BIRRTstar( req.init.width, req.init.height, req.init.segment_length );
   mpHARRTs->setReferenceFrames( mpReferenceFrameSet );
   harrts::POS2D start( req.init.start.x, req.init.start.y );
@@ -176,13 +194,72 @@ bool HARRTService::getPaths( harrt_ros::harrt_initialize::Request& req,
 bool HARRTService::refinePaths( harrt_ros::harrt_continue::Request& req,
                                 harrt_ros::harrt_continue::Response& res) 
 {
+  std::cout << "Refine paths of HARRT ... " << std::endl;
   
-  return false;
+  if( mpHARRTs ) 
+  {
+    size_t new_iterations = mpHARRTs->getCurrentIteration() + req.iterations;
+    while(mpHARRTs->getCurrentIteration() <= new_iterations) {
+      mpHARRTs->extend();
+    }
+
+    mpHARRTs->getStringClassMgr()->merge();
+    std::vector<harrts::Path*> paths = mpHARRTs->getPaths();
+
+    for(unsigned int i=0; i<paths.size(); i++) {
+      harrts::Path* p = paths[i];
+      if(p) {
+        harrt_ros::single_objective_path pp;
+        for(unsigned int j=0; j<p->mWaypoints.size(); j++) {
+          geometry_msgs::Pose pose;
+          pose.position.x = p->mWaypoints[j][0];
+          pose.position.y = p->mWaypoints[j][1];
+          pp.waypoints.poses.push_back(pose); 
+        }
+        pp.cost.data = p->mCost;
+        res.paths.push_back(pp);
+      }
+    }
+  }
+  std::cout << "Refine paths of HARRT finished " << std::endl;
+ 
+  return true;  
 }
 
 void HARRTService::deleteHARRT()
 {
+  if(mpHARRTs) 
+  {
+    delete mpHARRTs;
+    mpHARRTs = NULL;
+  }
+  if(mpReferenceFrameSet) 
+  {
+    delete mpReferenceFrameSet;
+    mpReferenceFrameSet = NULL;
+  }
+  if(mpFitnessDistribution) 
+  {
+    size_t array_size = sizeof(mpFitnessDistribution)/sizeof(double*);
+    for(size_t w=0; w < array_size; w++) 
+    {
+      delete [] mpFitnessDistribution[w];
+    }
+    delete [] mpFitnessDistribution;
+    mpFitnessDistribution = NULL;
+  }
 
+  if(mpObstacle) 
+  {
+    size_t array_size = sizeof(mpObstacle)/sizeof(int*);
+    for(size_t w=0; w < array_size; w++) 
+    {
+      delete [] mpObstacle[w];
+    }
+    delete [] mpObstacle;
+    mpObstacle = NULL;
+  }
+  mpFunc = NULL;
 }
 
 } // harrt_ros
