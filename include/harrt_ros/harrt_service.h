@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include "harrt_ros/harrt_initialize.h"
 #include "harrt_ros/harrt_continue.h"
+#include "topologyPathPlanning/harrts/BiRRTstar.hpp"
 
 class HARRTService {
 public:

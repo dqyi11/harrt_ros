@@ -14,26 +14,34 @@ find_package(catkin REQUIRED COMPONENTS
             )
 
 # Find package homotopy
-find_path(HOMOTOPY_INCLUDE_DIR tpp/homotopy/worldmap.h
+find_path(HOMOTOPY_INCLUDE_DIR topologyPathPlanning/homotopy/Worldmap.hpp
     HINTS ${HOMOTOPY_INCLUDE_DIR} ${HOMOTOPY_INCLUDE_DIRS})
 #message("HOMOTOPY_INCLUDE_DIR:")
 #message(${HOMOTOPY_INCLUDE_DIR})
 
-find_library(HOMOTOPY_LIBRARY tpp-homotopy
+find_library(HOMOTOPY_LIBRARY topologyPathPlanning_homotopy
     HINTS ${HOMOTOPY_LIB_DIR} ${HARRT_LIBRARY_DIRS})
 #message("HOMOTOPY_LIBRARY:")
 #message(${HOMOTOPY_LIBRARY})
 
 # Find package harrt
-find_path(HARRT_INCLUDE_DIR tpp/harrt/birrtstar.h
+find_path(HARRT_INCLUDE_DIR topologyPathPlanning/harrts/BiRRTstar.hpp
     HINTS ${HARRT_INCLUDE_DIR} ${HARRT_INCLUDE_DIRS})
 #message("HARRT_INCLUDE_DIR:")
 #message(${HARRT_INCLUDE_DIR})
 
-find_library(HARRT_LIBRARY tpp-harrts tpp-homotopy
+find_library(HARRT_LIBRARY topologyPathPlanning_harrts topologyPathPlanning_homotopy
     HINTS ${HARRT_LIB_DIR} ${HARRT_LIBRARY_DIRS})
 #message("HARRT_LIBRARY:")
 #message(${HARRT_LIBRARY})
+
+find_package(LibXml2)
+if( NOT LIBXML2_FOUND )
+  message( FATAL_ERROR "libxml2 not found\n" )
+  return()
+endif()
+
+include_directories(${LIBXML2_INCLUDE_DIR})
 
 find_package(CGAL QUIET COMPONENTS Core)
 if( NOT CGAL_FOUND )
