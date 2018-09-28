@@ -6,23 +6,34 @@
 #include "harrt_ros/harrt_continue.h"
 #include "topologyPathPlanning/harrts/BiRRTstar.hpp"
 
+namespace harrt_ros {
+
 class HARRTService {
 public:
   HARRTService();
   virtual ~HARRTService();
 
 
-  bool get_paths( harrt_ros::harrt_initialize::Request& req,
+  bool getPaths( harrt_ros::harrt_initialize::Request& req,
                   harrt_ros::harrt_initialize::Response& res);
 
-  bool refine_paths( harrt_ros::harrt_continue::Request& req,
+  bool refinePaths( harrt_ros::harrt_continue::Request& req,
                      harrt_ros::harrt_continue::Response& res);
 
-  ros::NodeHandle m_nh;
-  ros::NodeHandle m_cont;
+protected:
+  void deleteHARRT();
 
-  ros::ServiceServer m_harrt_init_srv;
-  ros::ServiceServer m_harrt_cont_srv;
+  ros::NodeHandle mNh;
+  ros::ServiceServer mHarrtInitSrv;
+  ros::ServiceServer mHarrtContSrv;
+
+  topologyPathPlanning::harrts::COST_FUNC_PTR mpFunc;
+  topologyPathPlanning::harrts::BIRRTstar* mpHARRTs;
+  topologyPathPlanning::homotopy::ReferenceFrameSet* mpReferenceFrameSet;
+  double** mpFitnessDistribution;
+  int** mpObstacle;
 };
+
+} // harrt_ros
 
 #endif // HARRT_SERVICE_H_

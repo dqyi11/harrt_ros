@@ -3,7 +3,7 @@
 
 int main( int argc, char** argv ) {
   ros::init( argc, argv, "harrt" );
-  HARRTService harrt_service;
+  harrt_ros::HARRTService harrt_service;
   ros::spin();
   return 0;
 }

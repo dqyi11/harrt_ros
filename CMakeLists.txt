@@ -95,6 +95,9 @@ add_executable(harrt_node src/harrt_service.cpp
 add_dependencies(harrt_node harrt_ros_generate_messages_cpp)
 
 target_link_libraries(harrt_node ${catkin_LIBRARIES}
+                                 ${HOMOTOPY_LIBRARY}
+                                 ${HARRT_LIBRARY}
+                                 ${CGAL_LIBRARIES}
                      )
 
 install(TARGETS harrt_node
