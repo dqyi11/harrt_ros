@@ -1,0 +1,4 @@
+<launch>
+<node pkg="harrt_ros" type="harrt_node" name="harrt_node">
+</node>
+</launch>
